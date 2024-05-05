@@ -1,24 +1,41 @@
 const express = require('express')
 const cors=require("cors");
 // const store = require('./store.json')
-const MongoClient = require("mongodb").MongoClient;
+const mysql = require("mysql2");
 const bodyParser = require('body-parser');
-const url = "mongodb://localhost:27017/";
-// создаем объект MongoClient и передаем ему строку подключения
+// const fs = require('fs')
+
 const corsOptions ={
    origin:'*', 
    credentials:false,          
    optionSuccessStatus:200,
 }
+
+
+const pool = mysql.createPool({
+  connectionLimit: 5,
+  host: "sql.freedb.tech",
+
+  user: "freedb_igor_s",
+  database: "freedb_sivgdpot",
+  password: "z#Rf9m6ne!UufkP"
+});
+ 
+// добавление объекта
+// const sql = "INSERT INTO users (name, age) VALUES(?, ?) ";
+// const data = ["Bill", 25];
+// pool.query(sql, data, function(err, results) {
+//   if(err) console.log(err);
+//   console.log(results);
+// });
+ 
+// получение объектов
+
+
+
 const urlencodedParser = bodyParser.urlencoded({
   extended: false,
 });
-const client = new MongoClient(url);
-client.connect().then(mongoClient=>{
-    console.log("Подключение установлено");
-    console.log(mongoClient.options.dbName); // получаем имя базы данных
-});
-
 
 
 const app = express()
@@ -27,30 +44,31 @@ app.use(express.json());
 
 
 
-async function run() {
-    try {
-        await client.connect();
-        const db = client.db("lpk_lidkon");
-        const collection = db.collection("users");
-        const count = await collection.countDocuments();
-        const results = await collection.find().toArray();
-        return results;
-    }catch(err) {
-        console.log(err);
-    } finally {
-        await client.close();
-    }
-}
-
-
-
-
 
 
 app.get("/",(req,response)=>{
-   console.log(run().catch(console.error).then((data)=>response.send(data)))
+pool.query("SELECT * FROM `contacts`", function(err, results) {
+  if(err) console.log(err);
+  response.send(results)
+});
 })
 
 
-app.listen(process.env.PORT)
-// app.listen(3001)
+   
+
+
+
+
+
+  // })
+   
+
+
+
+
+
+
+
+
+//app.listen(process.env.PORT)
+ app.listen(3001)
